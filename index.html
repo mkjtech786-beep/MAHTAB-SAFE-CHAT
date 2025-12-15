@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAHTAB SAFE CHAT</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 body{
   margin:0;
-  font-family:Poppins;
+  font-family:Poppins, sans-serif;
   background:#0b0a1a;
   color:#fff;
 }
@@ -22,26 +22,22 @@ body{
 .header{
   padding:14px;
   text-align:center;
-  font-weight:600;
-  font-size:1.8rem;
+  font-weight:700;
+  font-size:24px;
   background:#120c22;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  animation: glowText 3s ease-in-out infinite alternate;
+  /* Gradient Text Animation */
+  background: linear-gradient(90deg, #ff2f6d, #ff8a00, #1e90ff, #00d4ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 4s ease infinite;
 }
-@keyframes glowText{
-  0%{
-    text-shadow: 0 0 5px #ff2f6d, 0 0 10px #ff8a00;
-    color: #ff2f6d;
-  }
-  50%{
-    text-shadow: 0 0 10px #1e90ff, 0 0 20px #00d4ff;
-    color: #1e90ff;
-  }
-  100%{
-    text-shadow: 0 0 5px #ff2f6d, 0 0 10px #ff8a00;
-    color: #ff2f6d;
-  }
+
+/* Gradient animation keyframes */
+@keyframes gradientMove {
+  0% {background-position:0% 50%;}
+  50% {background-position:100% 50%;}
+  100% {background-position:0% 50%;}
 }
 
 .msgs{
@@ -107,8 +103,6 @@ button{
   font-size:18px;
   cursor:pointer;
   transition:0.2s;
-  box-shadow: 0 0 10px #ff2f6d;
-  animation:buttonGlow 2s ease-in-out infinite alternate;
 }
 button:active{transform:scale(0.9);}
 
@@ -116,11 +110,6 @@ button:active{transform:scale(0.9);}
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
-}
-@keyframes buttonGlow{
-  0%{box-shadow:0 0 10px #ff2f6d;}
-  50%{box-shadow:0 0 20px #ff8a00;}
-  100%{box-shadow:0 0 10px #ff2f6d;}
 }
 </style>
 </head>
@@ -169,6 +158,12 @@ const receiveSound = new Audio("https://www.soundjay.com/buttons/sounds/button-0
 sendSound.load();
 receiveSound.load();
 
+/* Unlock audio on first click */
+document.body.addEventListener("click", () => {
+  sendSound.play().then(()=>sendSound.pause()).catch(()=>{});
+  receiveSound.play().then(()=>receiveSound.pause()).catch(()=>{});
+}, {once:true});
+
 let msgsBox;
 
 /* LAST ACTIVE */
@@ -191,7 +186,7 @@ function loadMessages(){
 
       if(v.from==="admin") receiveSound.play().catch(()=>{});
     });
-    msgsBox.scrollTop=msgsBox.scrollHeight;
+    msgsBox.scrollTo({top: msgsBox.scrollHeight, behavior:"smooth"});
   });
 }
 
