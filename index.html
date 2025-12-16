@@ -12,7 +12,7 @@ html,body{
   margin:0;
   padding:0;
   height:100%;
-  overflow:hidden; /* 🔑 page scroll off */
+  overflow:hidden;
   font-family:Poppins, sans-serif;
   background:#0b0a1a;
   color:#fff;
@@ -21,7 +21,7 @@ html,body{
 .app{
   display:flex;
   flex-direction:column;
-  height:calc(var(--vh, 1vh) * 100); /* 🔑 mobile fix */
+  height:calc(var(--vh, 1vh) * 100);
 }
 
 .header{
@@ -30,22 +30,22 @@ html,body{
   font-weight:700;
   font-size:24px;
   background: linear-gradient(90deg, #ff2f6d, #ff8a00, #1e90ff, #00d4ff);
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradientMove 4s ease infinite;
+  background-size:300% 300%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:gradientMove 4s ease infinite;
 }
 
-@keyframes gradientMove {
-  0% {background-position:0% 50%;}
-  50% {background-position:100% 50%;}
-  100% {background-position:0% 50%;}
+@keyframes gradientMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
 }
 
 .msgs{
   flex:1;
   padding:14px;
-  overflow-y:auto; /* 🔑 sirf yahin scroll */
+  overflow-y:auto;
   display:flex;
   flex-direction:column;
   -webkit-overflow-scrolling:touch;
@@ -59,9 +59,11 @@ html,body{
   word-wrap:break-word;
   animation:fadeUp 0.3s ease;
 }
+
 .msg.admin{
   background:linear-gradient(135deg,#ff2f6d,#ff8a00);
 }
+
 .msg.user{
   background:linear-gradient(135deg,#1e90ff,#00d4ff);
   margin-left:auto;
@@ -87,6 +89,7 @@ html,body{
   background-size:600% 600%;
   animation:borderMove 4s ease infinite;
 }
+
 .input-border input{
   width:100%;
   padding:12px 14px;
@@ -116,6 +119,30 @@ button:active{transform:scale(0.9);}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
+
+/* 🔥 EMOJI SEND ANIMATION */
+.emoji-fly{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:34px;
+  pointer-events:none;
+  z-index:9999;
+  animation:emojiFly 0.7s ease forwards;
+}
+
+@keyframes emojiFly{
+  0%{
+    transform:translate(-50%,0) scale(0.5);
+    opacity:0;
+  }
+  30%{opacity:1;}
+  100%{
+    transform:translate(-50%,-140px) scale(1.4);
+    opacity:0;
+  }
+}
 </style>
 </head>
 
@@ -133,7 +160,7 @@ button:active{transform:scale(0.9);}
 </div>
 
 <script type="module">
-/* 🔑 MOBILE HEIGHT FIX (sirf 5 lines) */
+/* MOBILE HEIGHT FIX */
 function setVH(){
   document.documentElement.style.setProperty(
     '--vh',
@@ -162,22 +189,31 @@ const db = getDatabase(app);
 
 /* USERNAME */
 let userId = localStorage.getItem("username");
-if (!userId) {
-  userId = prompt("Enter your username:")?.trim() || "guest_" + Date.now();
+if(!userId){
+  userId = prompt("Enter your username:")?.trim() || "guest_"+Date.now();
   localStorage.setItem("username", userId);
 }
 
 /* SOUNDS */
-const sendSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
-const receiveSound = new Audio("https://www.soundjay.com/buttons/sounds/button-09.mp3");
+const sendSound=new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+const receiveSound=new Audio("https://www.soundjay.com/buttons/sounds/button-09.mp3");
 sendSound.load(); receiveSound.load();
 
-document.body.addEventListener("click", () => {
+document.body.addEventListener("click",()=>{
   sendSound.play().then(()=>sendSound.pause()).catch(()=>{});
   receiveSound.play().then(()=>receiveSound.pause()).catch(()=>{});
 },{once:true});
 
 let msgsBox;
+
+/* EMOJI ANIMATION FUNCTION */
+function emojiAnimation(emoji){
+  const e=document.createElement("div");
+  e.className="emoji-fly";
+  e.textContent=emoji;
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),700);
+}
 
 function updateLastActive(){
   update(ref(db,"chats/"+userId),{lastActive:Date.now()});
@@ -189,13 +225,51 @@ function loadMessages(){
     snap.forEach(m=>{
       const v=m.val();
       if(!v?.text) return;
+
       const d=document.createElement("div");
       d.className="msg "+(v.from==="admin"?"admin":"user");
       d.textContent=v.text;
-      msgsBox.appendChild(d);
+
+      // ✅ Time + Tick in same line for user messages
+      if(v.from==="user"){
+        const timeTickWrapper=document.createElement("div");
+        timeTickWrapper.style.fontSize="10px";
+        timeTickWrapper.style.color="#ccc";
+        timeTickWrapper.style.marginTop="4px";
+        timeTickWrapper.style.display="flex";
+        timeTickWrapper.style.justifyContent="flex-end";
+        timeTickWrapper.style.alignItems="center";
+
+        // Time
+        if(v.time){
+          const timeSpan=document.createElement("span");
+          const date=new Date(v.time);
+          let hours=date.getHours();
+          const minutes=date.getMinutes().toString().padStart(2,"0");
+          const ampm=hours>=12?"PM":"AM";
+          hours=hours%12 || 12;
+          timeSpan.textContent=`${hours}:${minutes} ${ampm}`;
+          timeTickWrapper.appendChild(timeSpan);
+        }
+
+        // Tick
+        const tickSpan=document.createElement("span");
+        tickSpan.style.fontSize="12px";
+        tickSpan.style.color="#ccc";
+        tickSpan.style.marginLeft="6px";
+        if(v.status==="sent") tickSpan.textContent="✔";
+        if(v.status==="seen") tickSpan.textContent="✔✔";
+        timeTickWrapper.appendChild(tickSpan);
+
+        d.appendChild(timeTickWrapper);
+      }
+
+      // Admin message sound
       if(v.from==="admin") receiveSound.play().catch(()=>{});
+
+      msgsBox.appendChild(d);
     });
-    msgsBox.scrollTop = msgsBox.scrollHeight;
+    msgsBox.scrollTop=msgsBox.scrollHeight;
   });
 }
 
@@ -209,10 +283,17 @@ window.sendMsg=async()=>{
     return;
   }
 
+  const msg=input.value;
+
+  const em=msg.match(/\p{Extended_Pictographic}/u);
+  if(em) emojiAnimation(em[0]);
+
+  // ✅ Send message with status: sent
   push(ref(db,"chats/"+userId),{
     from:"user",
-    text:input.value,
-    time:Date.now()
+    text:msg,
+    time:Date.now(),
+    status:"sent"
   });
 
   sendSound.play().catch(()=>{});
