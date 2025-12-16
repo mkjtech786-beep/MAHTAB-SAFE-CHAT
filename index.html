@@ -114,16 +114,33 @@ button{
 }
 button:active{transform:scale(0.9);}
 
+/* 🔥 TELEGRAM STYLE MIC BUTTON */
 .mic-btn{
   margin-left:10px;
-  width:42px;
-  height:42px;
+  width:50px;
+  height:50px;
   border:none;
   border-radius:50%;
   background:#1e90ff;
   color:#fff;
-  font-size:18px;
+  font-size:24px;
   cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.mic-btn.recording{
+  background:#ff2f6d;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.2); }
+  100%{ transform: scale(1); }
 }
 
 @keyframes borderMove{
@@ -156,21 +173,49 @@ button:active{transform:scale(0.9);}
   }
 }
 
+/* Telegram style voice message */
 .audio-msg{
   margin-top:5px;
   display:flex;
   align-items:center;
   gap:6px;
+  background:#222;
+  padding:6px 10px;
+  border-radius:25px;
+  max-width:250px;
 }
 
 .audio-msg button{
   padding:4px 8px;
-  border-radius:6px;
-  font-size:12px;
+  border-radius:50%;
+  font-size:14px;
   cursor:pointer;
-  background:#333;
+  background:#ff2f6d;
   color:#fff;
   border:none;
+}
+
+.audio-msg div{
+  flex:1;
+  height:4px;
+  background:#444;
+  border-radius:2px;
+  overflow:hidden;
+}
+
+.audio-msg div span{
+  display:block;
+  height:100%;
+  width:0%;
+  background:#ff2f6d;
+  border-radius:2px;
+}
+.audio-msg span.time-label{
+  font-size:10px;
+  color:#ccc;
+  margin-left:6px;
+  min-width:35px;
+  text-align:right;
 }
 </style>
 </head>
@@ -261,17 +306,58 @@ function loadMessages(){
         d.textContent=v.text;
       }
 
-      // Voice message
+      // Voice message (Telegram style)
       if(v.voice){
         const audioWrapper=document.createElement("div");
         audioWrapper.className="audio-msg";
-        const playBtn=document.createElement("button");
-        playBtn.textContent="▶ Play";
-        playBtn.onclick=()=>{
-          const audio=new Audio(v.voice);
-          audio.play();
-        }
+
+        const audio = new Audio(v.voice);
+        audioWrapper.audio = audio;
+
+        const playBtn = document.createElement("button");
+        playBtn.textContent = "▶";
+        let isPlaying = false;
+
+        const progressContainer = document.createElement("div");
+        const progress = document.createElement("span");
+        progressContainer.appendChild(progress);
+        progressContainer.style.flex = "1";
+
+        const timeLabel = document.createElement("span");
+        timeLabel.className = "time-label";
+        timeLabel.textContent = "0:00";
+
+        playBtn.onclick = ()=>{
+          if(!isPlaying){
+            audio.play();
+            playBtn.textContent = "⏸";
+            isPlaying = true;
+          }else{
+            audio.pause();
+            playBtn.textContent = "▶";
+            isPlaying = false;
+          }
+        };
+
+        audio.ontimeupdate = ()=>{
+          const percent = (audio.currentTime/audio.duration)*100;
+          progress.style.width = percent + "%";
+
+          let mins = Math.floor(audio.currentTime/60);
+          let secs = Math.floor(audio.currentTime%60).toString().padStart(2,"0");
+          timeLabel.textContent = `${mins}:${secs}`;
+        };
+
+        audio.onended = ()=>{
+          playBtn.textContent = "▶";
+          isPlaying = false;
+          progress.style.width = "0%";
+          timeLabel.textContent = "0:00";
+        };
+
         audioWrapper.appendChild(playBtn);
+        audioWrapper.appendChild(progressContainer);
+        audioWrapper.appendChild(timeLabel);
         d.appendChild(audioWrapper);
       }
 
@@ -346,9 +432,12 @@ window.sendMsg=async()=>{
   updateLastActive();
 };
 
-/* VOICE RECORDING */
+/* VOICE RECORDING WITH TIMER */
+let recordInterval;
 let mediaRecorder;
 let audioChunks = [];
+let recordStartTime;
+
 const micBtn = document.getElementById("micBtn");
 
 micBtn.onclick = async()=>{
@@ -358,7 +447,12 @@ micBtn.onclick = async()=>{
     mediaRecorder = new MediaRecorder(stream);
     audioChunks = [];
     mediaRecorder.ondataavailable = e=>audioChunks.push(e.data);
+
     mediaRecorder.onstop = async()=>{
+      clearInterval(recordInterval);
+      micBtn.textContent = "🎤";
+      micBtn.classList.remove("recording");
+
       const blob = new Blob(audioChunks, {type:"audio/webm"});
       const reader = new FileReader();
       reader.readAsDataURL(blob);
@@ -373,12 +467,23 @@ micBtn.onclick = async()=>{
         sendSound.play().catch(()=>{});
       }
     };
+
     mediaRecorder.start();
-    micBtn.textContent="⏹ Stop";
-  }else{
+    micBtn.classList.add("recording");
+
+    // Start timer
+    recordStartTime = Date.now();
+    micBtn.innerHTML = "● 0:00";
+    recordInterval = setInterval(()=>{
+      const elapsed = Date.now() - recordStartTime;
+      const mins = Math.floor(elapsed/60000);
+      const secs = Math.floor((elapsed%60000)/1000).toString().padStart(2,"0");
+      micBtn.innerHTML = `● ${mins}:${secs}`;
+    }, 1000);
+
+  } else {
     // Stop recording
     mediaRecorder.stop();
-    micBtn.textContent="🎤";
   }
 };
 
