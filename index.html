@@ -8,24 +8,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
+html,body{
   margin:0;
+  padding:0;
+  height:100%;
+  overflow:hidden; /* 🔑 page scroll off */
   font-family:Poppins, sans-serif;
   background:#0b0a1a;
   color:#fff;
 }
+
 .app{
   display:flex;
   flex-direction:column;
-  height:100vh;
+  height:calc(var(--vh, 1vh) * 100); /* 🔑 mobile fix */
 }
+
 .header{
   padding:14px;
   text-align:center;
   font-weight:700;
   font-size:24px;
-  background:#120c22;
-  /* Gradient Text Animation */
   background: linear-gradient(90deg, #ff2f6d, #ff8a00, #1e90ff, #00d4ff);
   background-size: 300% 300%;
   -webkit-background-clip: text;
@@ -33,7 +36,6 @@ body{
   animation: gradientMove 4s ease infinite;
 }
 
-/* Gradient animation keyframes */
 @keyframes gradientMove {
   0% {background-position:0% 50%;}
   50% {background-position:100% 50%;}
@@ -43,10 +45,12 @@ body{
 .msgs{
   flex:1;
   padding:14px;
-  overflow:auto;
+  overflow-y:auto; /* 🔑 sirf yahin scroll */
   display:flex;
   flex-direction:column;
+  -webkit-overflow-scrolling:touch;
 }
+
 .msg{
   padding:10px 12px;
   border-radius:14px;
@@ -72,7 +76,9 @@ body{
   display:flex;
   padding:10px;
   align-items:center;
+  background:#0b0a1a;
 }
+
 .input-border{
   flex:1;
   padding:2px;
@@ -102,7 +108,6 @@ button{
   color:#fff;
   font-size:18px;
   cursor:pointer;
-  transition:0.2s;
 }
 button:active{transform:scale(0.9);}
 
@@ -128,6 +133,16 @@ button:active{transform:scale(0.9);}
 </div>
 
 <script type="module">
+/* 🔑 MOBILE HEIGHT FIX (sirf 5 lines) */
+function setVH(){
+  document.documentElement.style.setProperty(
+    '--vh',
+    window.innerHeight * 0.01 + 'px'
+  );
+}
+setVH();
+window.addEventListener('resize', setVH);
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
@@ -155,42 +170,35 @@ if (!userId) {
 /* SOUNDS */
 const sendSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 const receiveSound = new Audio("https://www.soundjay.com/buttons/sounds/button-09.mp3");
-sendSound.load();
-receiveSound.load();
+sendSound.load(); receiveSound.load();
 
-/* Unlock audio on first click */
 document.body.addEventListener("click", () => {
   sendSound.play().then(()=>sendSound.pause()).catch(()=>{});
   receiveSound.play().then(()=>receiveSound.pause()).catch(()=>{});
-}, {once:true});
+},{once:true});
 
 let msgsBox;
 
-/* LAST ACTIVE */
 function updateLastActive(){
   update(ref(db,"chats/"+userId),{lastActive:Date.now()});
 }
 
-/* LOAD MESSAGES */
 function loadMessages(){
   onValue(ref(db,"chats/"+userId),snap=>{
     msgsBox.innerHTML="";
     snap.forEach(m=>{
       const v=m.val();
       if(!v?.text) return;
-
       const d=document.createElement("div");
       d.className="msg "+(v.from==="admin"?"admin":"user");
       d.textContent=v.text;
       msgsBox.appendChild(d);
-
       if(v.from==="admin") receiveSound.play().catch(()=>{});
     });
-    msgsBox.scrollTo({top: msgsBox.scrollHeight, behavior:"smooth"});
+    msgsBox.scrollTop = msgsBox.scrollHeight;
   });
 }
 
-/* SEND MESSAGE */
 window.sendMsg=async()=>{
   const input=document.getElementById("text");
   if(!input.value.trim()) return;
@@ -212,7 +220,6 @@ window.sendMsg=async()=>{
   updateLastActive();
 };
 
-/* INIT */
 window.onload=()=>{
   msgsBox=document.getElementById("msgs");
   updateLastActive();
