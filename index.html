@@ -185,6 +185,36 @@ button:active{transform:scale(0.9);}
   max-width:250px;
 }
 
+/* User bubble: dark purple → blue gradient */
+.msg.user {
+    background: linear-gradient(135deg, #6a0dad, #1e90ff); /* Dark Purple → Blue */
+    margin-left: auto;
+}
+
+/* Admin bubble: dark purple shades */
+.msg.admin {
+    background: linear-gradient(135deg, #4b0082, #6a0dad); /* Indigo → Dark Purple */
+}
+
+/* Strong glow for latest message */
+.msgs .msg:last-child.admin {
+    box-shadow: 0 0 12px rgba(106,13,173,0.8), 0 0 28px rgba(75,0,130,0.6);
+}
+
+.msgs .msg:last-child.user {
+    box-shadow: 0 0 12px rgba(30,144,255,0.8), 0 0 28px rgba(106,13,173,0.6);
+}
+
+/* Mic button color (normal + recording) */
+.mic-btn {
+    background: linear-gradient(135deg, #6a0dad, #1e90ff); /* Dark Purple → Blue */
+}
+
+.mic-btn.recording {
+    background: linear-gradient(135deg, #ff2f6d, #ff8a00); /* Original recording pulse color */
+}
+
+
 .audio-msg button{
   padding:4px 8px;
   border-radius:50%;
