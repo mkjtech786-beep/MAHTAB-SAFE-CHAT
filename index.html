@@ -51,6 +51,21 @@ html,body{
   -webkit-overflow-scrolling:touch;
 }
 
+/* Admin message bubble */
+.msg.admin{
+  background: linear-gradient(135deg,#ff2f6d,#ff8a00);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255,47,109,0.6), 0 0 15px rgba(255,138,0,0.5);
+}
+
+/* User message bubble - Dark purple + blue */
+.msg.user {
+  background: linear-gradient(135deg, #4b0082, #1e3c72);
+  margin-left: auto;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(75,0,130,0.6), 0 0 15px rgba(30,60,114,0.5);
+}
+
 .msg{
   padding:10px 12px;
   border-radius:14px;
@@ -58,15 +73,6 @@ html,body{
   max-width:70%;
   word-wrap:break-word;
   animation:fadeUp 0.3s ease;
-}
-
-.msg.admin{
-  background:linear-gradient(135deg,#ff2f6d,#ff8a00);
-}
-
-.msg.user{
-  background:linear-gradient(135deg,#1e90ff,#00d4ff);
-  margin-left:auto;
 }
 
 @keyframes fadeUp{
@@ -96,7 +102,7 @@ html,body{
   border:none;
   outline:none;
   border-radius:26px;
-  background:#0b0a1a;
+  background:#121025; /* darker input */
   color:#fff;
   font-size:14px;
 }
@@ -111,17 +117,19 @@ button{
   color:#fff;
   font-size:18px;
   cursor:pointer;
+  transition: transform 0.2s;
 }
 button:active{transform:scale(0.9);}
+button:hover{transform:scale(1.1);} /* hover effect */
 
-/* 🔥 TELEGRAM STYLE MIC BUTTON */
+/* Mic button - match user bubble */
 .mic-btn{
   margin-left:10px;
   width:50px;
   height:50px;
   border:none;
   border-radius:50%;
-  background:#1e90ff;
+  background: linear-gradient(135deg, #4b0082, #1e3c72); /* user bubble color */
   color:#fff;
   font-size:24px;
   cursor:pointer;
@@ -129,9 +137,12 @@ button:active{transform:scale(0.9);}
   justify-content:center;
   align-items:center;
   position:relative;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, filter 0.2s;
 }
-
+.mic-btn:hover{
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
 .mic-btn.recording{
   background:#ff2f6d;
   animation: pulse 1s infinite;
@@ -147,6 +158,26 @@ button:active{transform:scale(0.9);}
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
+}
+
+/* Image send button - dark purple-blue */
+button[title="Send Image"] {
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:50%;
+  background: linear-gradient(135deg, #4b0082, #1e3c72);
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition: transform 0.2s, filter 0.2s;
+}
+button[title="Send Image"]:hover{
+  transform: scale(1.1);
+  filter: brightness(1.2);
 }
 
 /* 🔥 EMOJI SEND ANIMATION */
@@ -185,36 +216,6 @@ button:active{transform:scale(0.9);}
   max-width:250px;
 }
 
-/* User bubble: dark purple → blue gradient */
-.msg.user {
-    background: linear-gradient(135deg, #6a0dad, #1e90ff); /* Dark Purple → Blue */
-    margin-left: auto;
-}
-
-/* Admin bubble: dark purple shades */
-.msg.admin {
-    background: linear-gradient(135deg, #ff8a00, #6a0dad); /* Orange → Purple */
-}
-
-/* Strong glow for latest message */
-.msgs .msg:last-child.admin {
-    box-shadow: 0 0 20px rgba(255,138,0,0.8), 0 0 40px rgba(106,13,173,0.7);
-}
-
-.msgs .msg:last-child.user {
-    box-shadow: 0 0 12px rgba(30,144,255,0.8), 0 0 28px rgba(106,13,173,0.6);
-}
-
-/* Mic button color (normal + recording) */
-.mic-btn {
-    background: linear-gradient(135deg, #6a0dad, #1e90ff); /* Dark Purple → Blue */
-}
-
-.mic-btn.recording {
-    background: linear-gradient(135deg, #ff2f6d, #ff8a00); /* Original recording pulse color */
-}
-
-
 .audio-msg button{
   padding:4px 8px;
   border-radius:50%;
@@ -247,6 +248,23 @@ button:active{transform:scale(0.9);}
   min-width:35px;
   text-align:right;
 }
+
+/* Image message */
+.msg img{
+  max-width:200px;
+  border-radius:12px;
+  margin-top:5px;
+  cursor:pointer;
+}
+
+/* Scrollbar customization */
+.msgs::-webkit-scrollbar {
+  width:6px;
+}
+.msgs::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius:3px;
+}
 </style>
 </head>
 
@@ -260,7 +278,9 @@ button:active{transform:scale(0.9);}
       <input id="text" placeholder="Type message..." />
     </div>
     <button onclick="sendMsg()">➤</button>
+    <button onclick="sendImage()" title="Send Image">📤</button>
     <button class="mic-btn" id="micBtn">🎤</button>
+    <input type="file" id="imageInput" accept="image/*" style="display:none" />
   </div>
 </div>
 
@@ -281,7 +301,7 @@ const firebaseConfig = {
   authDomain: "safe-chat-c0b9c.firebaseapp.com",
   databaseURL: "https://safe-chat-c0b9c-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "safe-chat-c0b9c",
-  storageBucket: "safe-chat-c0b9c.firebasestorage.app",
+  storageBucket: "safe-chat-c0b9c.firebasedatabase.app",
   messagingSenderId: "119640275300",
   appId: "1:119640275300:web:20ae984f4af1ffe6a62271"
 };
@@ -326,7 +346,7 @@ function loadMessages(){
     msgsBox.innerHTML="";
     snap.forEach(m=>{
       const v=m.val();
-      if(!v?.text && !v?.voice) return;
+      if(!v?.text && !v?.voice && !v?.image) return;
 
       const d=document.createElement("div");
       d.className="msg "+(v.from==="admin"?"admin":"user");
@@ -336,7 +356,7 @@ function loadMessages(){
         d.textContent=v.text;
       }
 
-      // Voice message (Telegram style)
+      // Voice message
       if(v.voice){
         const audioWrapper=document.createElement("div");
         audioWrapper.className="audio-msg";
@@ -391,6 +411,14 @@ function loadMessages(){
         d.appendChild(audioWrapper);
       }
 
+      // Image message
+      if(v.image){
+        const img = document.createElement("img");
+        img.src = v.image;
+        img.onclick = ()=>window.open(v.image,"_blank");
+        d.appendChild(img);
+      }
+
       // ✅ Time + Tick in same line for user messages
       if(v.from==="user"){
         const timeTickWrapper=document.createElement("div");
@@ -401,7 +429,6 @@ function loadMessages(){
         timeTickWrapper.style.justifyContent="flex-end";
         timeTickWrapper.style.alignItems="center";
 
-        // Time
         if(v.time){
           const timeSpan=document.createElement("span");
           const date=new Date(v.time);
@@ -413,7 +440,6 @@ function loadMessages(){
           timeTickWrapper.appendChild(timeSpan);
         }
 
-        // Tick
         const tickSpan=document.createElement("span");
         tickSpan.style.fontSize="12px";
         tickSpan.style.color="#ccc";
@@ -425,7 +451,6 @@ function loadMessages(){
         d.appendChild(timeTickWrapper);
       }
 
-      // Admin message sound
       if(v.from==="admin") receiveSound.play().catch(()=>{});
 
       msgsBox.appendChild(d);
@@ -446,7 +471,6 @@ window.sendMsg=async()=>{
   }
 
   const msg=input.value;
-
   const em=msg.match(/\p{Extended_Pictographic}/u);
   if(em) emojiAnimation(em[0]);
 
@@ -462,7 +486,38 @@ window.sendMsg=async()=>{
   updateLastActive();
 };
 
-/* VOICE RECORDING WITH TIMER */
+/* SEND IMAGE */
+window.sendImage = () => {
+  const imageInput = document.getElementById("imageInput");
+  imageInput.click(); // Open file selector
+
+  imageInput.onchange = async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    const snap = await get(ref(db, "chats/" + userId + "/blocked"));
+    if (snap.exists() && snap.val() === true) {
+      alert("You are blocked ❌");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      const base64Image = reader.result;
+      push(ref(db, "chats/" + userId), {
+        from: "user",
+        image: base64Image,
+        time: Date.now(),
+        status: "sent"
+      });
+      sendSound.play().catch(() => {});
+    };
+    imageInput.value = "";
+  };
+};
+
+/* VOICE RECORDING */
 let recordInterval;
 let mediaRecorder;
 let audioChunks = [];
@@ -472,7 +527,6 @@ const micBtn = document.getElementById("micBtn");
 
 micBtn.onclick = async()=>{
   if(!mediaRecorder || mediaRecorder.state==="inactive"){
-    // Start recording
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     mediaRecorder = new MediaRecorder(stream);
     audioChunks = [];
@@ -501,7 +555,6 @@ micBtn.onclick = async()=>{
     mediaRecorder.start();
     micBtn.classList.add("recording");
 
-    // Start timer
     recordStartTime = Date.now();
     micBtn.innerHTML = "● 0:00";
     recordInterval = setInterval(()=>{
@@ -512,7 +565,6 @@ micBtn.onclick = async()=>{
     }, 1000);
 
   } else {
-    // Stop recording
     mediaRecorder.stop();
   }
 };
