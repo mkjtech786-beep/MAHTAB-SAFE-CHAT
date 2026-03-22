@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MAHTAB SAFE CHAT - PRIVATE CHAT</title>
+    <title>MAHTAB SAFE CHAT</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #0f0f0f;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #242424;
+            --bg-dark: #0f1419;
+            --bg-secondary: #111b21;
+            --bg-tertiary: #202c33;
+            --bg-hover: #2a3942;
             --gold-primary: #ffd700;
             --gold-secondary: #ffb800;
             --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffb800 50%, #ffed4e 100%);
             --gold-glow: 0 0 20px rgba(255, 215, 0, 0.3);
             --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
+            --text-secondary: #8696a0;
+            --accent: #00a884;
+            --incoming-bg: #202c33;
+            --outgoing-bg: #005c4b;
         }
 
         * {
@@ -42,7 +46,7 @@
             position: relative;
         }
 
-        /* Premium Background Pattern */
+        /* Background Pattern */
         .bg-pattern {
             position: absolute;
             top: 0;
@@ -50,35 +54,31 @@
             right: 0;
             bottom: 0;
             background-image: 
-                radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 184, 0, 0.03) 0%, transparent 50%),
-                repeating-linear-gradient(45deg, rgba(255,215,0,0.01) 0px, rgba(255,215,0,0.01) 1px, transparent 1px, transparent 11px),
-                repeating-linear-gradient(-45deg, rgba(255,215,0,0.01) 0px, rgba(255,215,0,0.01) 1px, transparent 1px, transparent 11px);
+                radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 184, 0, 0.02) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Header - Clean Design */
+        /* Header */
         .header {
-            background: var(--bg-secondary);
-            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            padding: 10px 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            gap: 12px;
             z-index: 10;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .header-avatar {
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             background: var(--gold-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 20px;
             color: #000;
             font-weight: 700;
             box-shadow: var(--gold-glow);
@@ -90,39 +90,44 @@
             position: absolute;
             bottom: -2px;
             right: -2px;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             background: #000;
             border: 2px solid var(--gold-primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7px;
         }
 
         .header-info {
             flex: 1;
+            min-width: 0;
         }
 
         .header-name {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .verified-icon {
             color: var(--gold-primary);
             font-size: 14px;
+            flex-shrink: 0;
         }
 
         .header-status {
             font-size: 13px;
-            color: var(--gold-secondary);
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -133,34 +138,59 @@
             height: 8px;
             background: #00c853;
             border-radius: 50%;
-            box-shadow: 0 0 10px #00c853;
+            box-shadow: 0 0 8px #00c853;
             animation: pulse-dot 2s infinite;
         }
 
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gold-primary);
         }
 
         /* Messages Container */
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px 15px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             z-index: 5;
             position: relative;
         }
 
         .message {
             max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 20px;
+            padding: 8px 12px;
+            border-radius: 12px;
             position: relative;
             animation: messageIn 0.3s ease;
-            font-size: 15px;
+            font-size: 14.5px;
             line-height: 1.4;
             word-wrap: break-word;
         }
@@ -168,7 +198,7 @@
         @keyframes messageIn {
             from {
                 opacity: 0;
-                transform: translateY(10px) scale(0.9);
+                transform: translateY(10px) scale(0.95);
             }
             to {
                 opacity: 1;
@@ -181,42 +211,45 @@
             background: var(--gold-gradient);
             color: #000;
             border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
         }
 
         .message.admin {
             align-self: flex-start;
-            background: var(--bg-tertiary);
+            background: var(--incoming-bg);
             color: var(--text-primary);
-            border: 1px solid rgba(255, 215, 0, 0.2);
             border-bottom-left-radius: 4px;
         }
 
         .message-image {
             max-width: 100%;
-            border-radius: 12px;
-            margin-bottom: 5px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 4px;
             cursor: pointer;
         }
 
         .message-audio {
             width: 200px;
-            height: 35px;
-            margin-top: 5px;
+            height: 36px;
+            margin-top: 4px;
+        }
+
+        .message-text {
+            margin-bottom: 2px;
         }
 
         .message-meta {
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 5px;
-            margin-top: 4px;
+            gap: 4px;
             font-size: 11px;
-            opacity: 0.8;
+            margin-top: 2px;
         }
 
         .message.user .message-meta {
-            color: rgba(0,0,0,0.7);
+            color: rgba(0, 0, 0, 0.6);
         }
 
         .message.admin .message-meta {
@@ -224,37 +257,36 @@
         }
 
         .tick {
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .tick.seen {
-            color: var(--gold-primary);
+            color: #53bdeb;
         }
 
         /* Date Separator */
         .date-separator {
             align-self: center;
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--gold-secondary);
-            padding: 6px 16px;
-            border-radius: 20px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 15px;
             font-size: 12px;
             margin: 10px 0;
-            border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
         /* Typing Indicator */
         .typing-container {
             align-self: flex-start;
-            background: var(--bg-tertiary);
-            padding: 15px 20px;
-            border-radius: 20px;
+            background: var(--incoming-bg);
+            padding: 12px 16px;
+            border-radius: 12px;
             border-bottom-left-radius: 4px;
             display: none;
             align-items: center;
             gap: 10px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            margin: 0 15px;
+            margin: 0 16px;
+            z-index: 5;
         }
 
         .typing-container.active {
@@ -262,18 +294,18 @@
         }
 
         .typing-text {
-            color: var(--gold-secondary);
-            font-size: 14px;
+            color: var(--text-secondary);
+            font-size: 13px;
         }
 
         .typing-animation {
             display: flex;
-            gap: 4px;
+            gap: 3px;
         }
 
         .typing-animation span {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--gold-primary);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite ease-in-out both;
@@ -284,31 +316,30 @@
 
         @keyframes typingBounce {
             0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
+            40% { transform: translateY(-8px); }
         }
 
-        /* Input Area - Rounded Design */
+        /* Input Area */
         .input-area {
-            background: var(--bg-secondary);
-            padding: 12px 15px 20px;
-            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            background: var(--bg-tertiary);
+            padding: 10px 12px;
             z-index: 10;
         }
 
         .input-wrapper {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .attach-btn {
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             background: transparent;
             border: none;
-            color: var(--gold-secondary);
-            font-size: 24px;
+            color: var(--text-secondary);
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -319,25 +350,18 @@
 
         .attach-btn:active {
             transform: scale(0.9);
-            background: rgba(255, 215, 0, 0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Main Input Container - Rounded with inner buttons */
+        /* Input Container */
         .input-container {
             flex: 1;
-            background: var(--bg-tertiary);
-            border-radius: 30px;
-            padding: 6px 6px 6px 20px;
+            background: var(--bg-secondary);
+            border-radius: 25px;
+            padding: 5px 5px 5px 15px;
             display: flex;
             align-items: center;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            transition: all 0.3s;
-            gap: 10px;
-        }
-
-        .input-container:focus-within {
-            border-color: var(--gold-primary);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+            gap: 8px;
         }
 
         .message-input {
@@ -345,7 +369,7 @@
             background: transparent;
             border: none;
             color: var(--text-primary);
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
             padding: 8px 0;
         }
@@ -354,7 +378,7 @@
             color: var(--text-secondary);
         }
 
-        /* Action Button inside input (Mic/Send) */
+        /* Action Button (Mic/Send) */
         .action-btn {
             width: 42px;
             height: 42px;
@@ -379,18 +403,74 @@
         .action-btn.recording {
             background: #ff4444;
             color: white;
-            animation: recordingPulse 1.5s infinite;
-            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+            animation: recordingPulse 1s infinite;
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
         }
 
         @keyframes recordingPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 12px rgba(255, 68, 68, 0); }
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+            }
+        }
+
+        /* Recording Overlay */
+        .recording-overlay {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 68, 68, 0.95);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        .recording-overlay.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .recording-dot {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .recording-time {
+            font-weight: 500;
+            font-size: 14px;
         }
 
         /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
 
         ::-webkit-scrollbar-track {
@@ -398,7 +478,7 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--gold-secondary);
+            background: var(--bg-tertiary);
             border-radius: 3px;
         }
 
@@ -409,13 +489,15 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 10000;
             flex-direction: column;
             gap: 20px;
+            padding: 40px;
+            text-align: center;
         }
 
         .blocked-overlay.active {
@@ -423,15 +505,178 @@
         }
 
         .blocked-icon {
-            font-size: 60px;
-            color: #ff4444;
+            width: 100px;
+            height: 100px;
+            background: #ff4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
 
         .blocked-text {
             color: var(--text-secondary);
             font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .blocked-text strong {
+            color: #ff4444;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 10000;
+            animation: toastIn 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.active {
+            display: flex;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .toast-icon {
+            color: var(--gold-primary);
+        }
+
+        /* Welcome Modal */
+        .welcome-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .welcome-modal.active {
+            display: flex;
+        }
+
+        .welcome-content {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 350px;
+            width: 100%;
             text-align: center;
-            padding: 0 40px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gold-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #000;
+            margin: 0 auto 20px;
+            box-shadow: var(--gold-glow);
+        }
+
+        .welcome-content h2 {
+            color: var(--gold-primary);
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .welcome-content p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .username-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .username-input:focus {
+            border-color: var(--gold-primary);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold-gradient);
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 380px) {
+            .header-name {
+                font-size: 14px;
+            }
+            
+            .message {
+                max-width: 85%;
+                font-size: 14px;
+            }
+            
+            .message-audio {
+                width: 160px;
+            }
         }
     </style>
 </head>
@@ -439,7 +684,7 @@
     <div class="app">
         <div class="bg-pattern"></div>
         
-        <!-- Clean Header - No buttons -->
+        <!-- Header -->
         <div class="header">
             <div class="header-avatar">
                 M
@@ -450,13 +695,19 @@
             
             <div class="header-info">
                 <div class="header-name">
-                    MAHTAB KHAN JAMALI
+                    MAHTAB KHAN
                     <i class="fas fa-check-circle verified-icon"></i>
                 </div>
                 <div class="header-status" id="adminStatus">
                     <span class="status-dot"></span>
                     <span id="statusText">Online</span>
                 </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="header-btn" onclick="clearChat()" title="Clear Chat">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
 
@@ -467,7 +718,7 @@
 
         <!-- Typing Indicator -->
         <div class="typing-container" id="typingContainer">
-            <span class="typing-text">Mahtab is typing</span>
+            <span class="typing-text">typing</span>
             <div class="typing-animation">
                 <span></span>
                 <span></span>
@@ -475,7 +726,7 @@
             </div>
         </div>
 
-        <!-- Input Area - Rounded with inner buttons -->
+        <!-- Input Area -->
         <div class="input-area">
             <div class="input-wrapper">
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
@@ -484,7 +735,7 @@
                 </button>
                 
                 <div class="input-container">
-                    <input type="text" class="message-input" id="messageInput" placeholder="Write a message...">
+                    <input type="text" class="message-input" id="messageInput" placeholder="Message...">
                     <button class="action-btn" id="actionBtn" onclick="handleAction()">
                         <i class="fas fa-microphone"></i>
                     </button>
@@ -493,10 +744,41 @@
         </div>
     </div>
 
+    <!-- Recording Overlay -->
+    <div class="recording-overlay" id="recordingOverlay">
+        <div class="recording-dot"></div>
+        <span class="recording-time" id="recordingTime">00:00</span>
+        <span>Recording...</span>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-info-circle toast-icon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
     <!-- Blocked Overlay -->
     <div class="blocked-overlay" id="blockedOverlay">
-        <i class="fas fa-ban blocked-icon"></i>
-        <div class="blocked-text">You have been blocked by owner Mahtab</div>
+        <div class="blocked-icon">
+            <i class="fas fa-ban"></i>
+        </div>
+        <div class="blocked-text">
+            <strong>You are blocked</strong>
+            You cannot send messages to this contact
+        </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="welcome-modal" id="welcomeModal">
+        <div class="welcome-content">
+            <div class="welcome-icon">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h2>Welcome to Safe Chat</h2>
+            <p>Enter your name to start chatting with MAHTAB</p>
+            <input type="text" class="username-input" id="usernameInput" placeholder="Your name" maxlength="20">
+            <button class="start-btn" onclick="setUsername()">Start Chat</button>
+        </div>
     </div>
 
     <script type="module">
@@ -518,13 +800,10 @@
 
         // User Setup
         let userId = localStorage.getItem("mahtab_username");
-        if (!userId) {
-            userId = prompt("Enter your username:")?.trim() || "user_" + Math.floor(Math.random() * 10000);
-            localStorage.setItem("mahtab_username", userId);
-        }
-
         let mediaRecorder = null;
         let audioChunks = [];
+        let recordingStartTime = null;
+        let recordingInterval = null;
 
         // Mobile Height Fix
         function setVH() {
@@ -532,6 +811,96 @@
         }
         setVH();
         window.addEventListener('resize', setVH);
+
+        // Show welcome modal if no username
+        if (!userId) {
+            document.getElementById('welcomeModal').classList.add('active');
+        }
+
+        // Set username
+        window.setUsername = function() {
+            const input = document.getElementById('usernameInput');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast('Please enter your name');
+                return;
+            }
+            
+            userId = name;
+            localStorage.setItem("mahtab_username", userId);
+            document.getElementById('welcomeModal').classList.remove('active');
+            initializeChat();
+        };
+
+        // Allow Enter key in username input
+        document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') setUsername();
+        });
+
+        // Initialize chat
+        function initializeChat() {
+            // User Status
+            const userStatusRef = ref(db, 'status/' + userId);
+            update(userStatusRef, { state: 'online', last_seen: serverTimestamp() });
+            onDisconnect(userStatusRef).set({ state: 'offline', last_seen: serverTimestamp() });
+
+            // Listen Admin Status
+            onValue(ref(db, 'status/admin'), (snap) => {
+                const statusText = document.getElementById('statusText');
+                const dot = document.querySelector('.status-dot');
+                
+                if (snap.exists()) {
+                    const data = snap.val();
+                    if (data.state === 'online') {
+                        statusText.textContent = 'Online';
+                        dot.style.background = '#00c853';
+                        dot.style.boxShadow = '0 0 8px #00c853';
+                    } else {
+                        const time = formatTime(data.last_seen);
+                        statusText.textContent = `last seen at ${time}`;
+                        dot.style.background = '#888';
+                        dot.style.boxShadow = 'none';
+                    }
+                }
+            });
+
+            // Check Blocked
+            onValue(ref(db, `chats/${userId}/blocked`), (snap) => {
+                const overlay = document.getElementById('blockedOverlay');
+                if (snap.exists() && snap.val() === true) {
+                    overlay.classList.add('active');
+                } else {
+                    overlay.classList.remove('active');
+                }
+            });
+
+            // Load Messages
+            onValue(ref(db, `chats/${userId}/messages`), (snap) => {
+                const container = document.getElementById('messages');
+                const dateSep = container.querySelector('.date-separator');
+                container.innerHTML = '';
+                container.appendChild(dateSep);
+                
+                snap.forEach((child) => {
+                    const msg = child.val();
+                    renderMessage(msg, child.key);
+                });
+                
+                scrollToBottom();
+            });
+
+            // Typing Indicator
+            onValue(ref(db, `chats/${userId}/typing_admin`), (snap) => {
+                const typingContainer = document.getElementById('typingContainer');
+                if (snap.exists() && snap.val() === true) {
+                    typingContainer.classList.add('active');
+                    scrollToBottom();
+                } else {
+                    typingContainer.classList.remove('active');
+                }
+            });
+        }
 
         // Time Formatter
         function formatTime(timestamp) {
@@ -544,55 +913,14 @@
             return `${hours}:${minutes} ${ampm}`;
         }
 
-        // User Status
-        const userStatusRef = ref(db, 'status/' + userId);
-        update(userStatusRef, { state: 'online', last_seen: serverTimestamp() });
-        onDisconnect(userStatusRef).set({ state: 'offline', last_seen: serverTimestamp() });
+        // Format recording time
+        function formatRecordingTime(seconds) {
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
 
-        // Listen Admin Status
-        onValue(ref(db, 'status/admin'), (snap) => {
-            const statusText = document.getElementById('statusText');
-            const dot = document.querySelector('.status-dot');
-            
-            if (snap.exists()) {
-                const data = snap.val();
-                if (data.state === 'online') {
-                    statusText.textContent = 'Online';
-                    dot.style.background = '#00c853';
-                    dot.style.boxShadow = '0 0 10px #00c853';
-                } else {
-                    const time = formatTime(data.last_seen);
-                    statusText.textContent = `last seen at ${time}`;
-                    dot.style.background = '#888';
-                    dot.style.boxShadow = 'none';
-                }
-            }
-        });
-
-        // Check Blocked
-        onValue(ref(db, `chats/${userId}/blocked`), (snap) => {
-            if (snap.exists() && snap.val() === true) {
-                document.getElementById('blockedOverlay').classList.add('active');
-            } else {
-                document.getElementById('blockedOverlay').classList.remove('active');
-            }
-        });
-
-        // Load Messages
-        onValue(ref(db, `chats/${userId}/messages`), (snap) => {
-            const container = document.getElementById('messages');
-            const dateSep = container.querySelector('.date-separator');
-            container.innerHTML = '';
-            container.appendChild(dateSep);
-            
-            snap.forEach((child) => {
-                const msg = child.val();
-                renderMessage(msg, child.key);
-            });
-            
-            scrollToBottom();
-        });
-
+        // Render Message
         function renderMessage(msg, key) {
             const container = document.getElementById('messages');
             const div = document.createElement('div');
@@ -613,7 +941,7 @@
             }
             
             if (msg.text) {
-                content += msg.text;
+                content += `<div class="message-text">${escapeHtml(msg.text)}</div>`;
             }
             
             const time = formatTime(msg.time);
@@ -632,6 +960,14 @@
             container.appendChild(div);
         }
 
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Scroll to bottom
         function scrollToBottom() {
             const container = document.getElementById('messages');
             container.scrollTop = container.scrollHeight;
@@ -649,7 +985,7 @@
             }
         });
 
-        // Handle Action
+        // Handle Action (Send or Record)
         window.handleAction = async () => {
             if (input.value.trim().length > 0) {
                 await sendMessage();
@@ -658,13 +994,14 @@
             }
         };
 
+        // Send Message
         async function sendMessage() {
             const text = input.value.trim();
-            if (!text) return;
+            if (!text || !userId) return;
             
             const blockedSnap = await get(ref(db, `chats/${userId}/blocked`));
             if (blockedSnap.exists() && blockedSnap.val() === true) {
-                alert('You are blocked!');
+                showToast('You are blocked!');
                 return;
             }
             
@@ -677,12 +1014,13 @@
             
             input.value = '';
             actionBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            input.focus();
         }
 
         // Image Send
         document.getElementById('imageInput').onchange = (e) => {
             const file = e.target.files[0];
-            if (!file) return;
+            if (!file || !userId) return;
             
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -694,14 +1032,28 @@
                     status: 'sent'
                 });
             };
+            
+            e.target.value = '';
         };
 
         // Voice Recording
         async function toggleRecording() {
+            const overlay = document.getElementById('recordingOverlay');
+            const timeEl = document.getElementById('recordingTime');
+            
             if (mediaRecorder && mediaRecorder.state === 'recording') {
+                // Stop recording
                 mediaRecorder.stop();
                 actionBtn.classList.remove('recording');
                 actionBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                overlay.classList.remove('active');
+                clearInterval(recordingInterval);
+                recordingStartTime = null;
+                return;
+            }
+            
+            if (!userId) {
+                showToast('Please set your name first');
                 return;
             }
             
@@ -710,8 +1062,13 @@
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 
-                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+                
                 mediaRecorder.onstop = () => {
+                    if (audioChunks.length === 0) return;
+                    
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
                     reader.readAsDataURL(blob);
@@ -723,20 +1080,54 @@
                             status: 'sent'
                         });
                     };
+                    
                     stream.getTracks().forEach(track => track.stop());
                 };
                 
-                mediaRecorder.start();
+                mediaRecorder.start(100);
+                
+                // Update UI
                 actionBtn.classList.add('recording');
                 actionBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                overlay.classList.add('active');
+                
+                // Start timer
+                recordingStartTime = Date.now();
+                recordingInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    timeEl.textContent = formatRecordingTime(elapsed);
+                }, 1000);
+                
             } catch (err) {
-                alert('Microphone access denied');
+                showToast('Microphone access denied');
+                console.error(err);
             }
+        }
+
+        // Clear chat
+        window.clearChat = () => {
+            if (!userId || !confirm('Clear all messages?')) return;
+            const msgsRef = ref(db, `chats/${userId}/messages`);
+            // Only clear local display, don't delete from server
+            const container = document.getElementById('messages');
+            const dateSep = container.querySelector('.date-separator');
+            container.innerHTML = '';
+            container.appendChild(dateSep);
+            showToast('Chat cleared locally');
+        };
+
+        // Show toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
         }
 
         // Typing Indicator
         let typingTimeout;
         input.addEventListener('input', () => {
+            if (!userId) return;
             update(ref(db, `chats/${userId}`), { typing_user: true });
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
@@ -744,20 +1135,15 @@
             }, 3000);
         });
 
-        onValue(ref(db, `chats/${userId}/typing_admin`), (snap) => {
-            const typingContainer = document.getElementById('typingContainer');
-            if (snap.exists() && snap.val() === true) {
-                typingContainer.classList.add('active');
-                scrollToBottom();
-            } else {
-                typingContainer.classList.remove('active');
-            }
-        });
-
         // Enter key
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleAction();
         });
+
+        // Initialize if userId exists
+        if (userId) {
+            initializeChat();
+        }
     </script>
 </body>
 </html>
